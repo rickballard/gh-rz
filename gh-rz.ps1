@@ -1,5 +1,5 @@
 param(
-  [Alias("h","?","help")][switch]$Help,
+  [Alias("h","?")][switch]$Help,
   [string]$User,
   [string]$OutDir = (Join-Path $HOME "Desktop/CoSuiteBackup"),
   [string[]]$Skip = @(),
@@ -40,3 +40,4 @@ if (-not (Test-Path $script)) { throw "Repo script not found: $script" }
 & pwsh -NoLogo -NoProfile -File $script `
   -User $User -OutDir $OutDir -Skip $Skip -DotEveryMB $DotEveryMB
 exit $LASTEXITCODE
+
