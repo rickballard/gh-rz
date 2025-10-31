@@ -1,4 +1,4 @@
 #!/usr/bin/env bash
 # Minimal shim: forward to PowerShell script
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-pwsh -File "${SCRIPT_DIR}/gh-rz.ps1" "$@"
+pwsh -NoLogo -NoProfile -File "${SCRIPT_DIR}/gh-rz.ps1" "$@"
