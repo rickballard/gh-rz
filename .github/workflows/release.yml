@@ -1,0 +1,23 @@
+name: release
+on:
+  push:
+    tags:
+      - "v*.*.*"
+jobs:
+  build-and-release:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Prepare artifact
+        run: |
+          $ErrorActionPreference='Stop'
+          $out = Join-Path $env:RUNNER_TEMP "gh-rz_megazip_${{ github.ref_name }}.zip"
+          Compress-Archive -Force -Path payload/* -DestinationPath $out
+          "ZIP=$out" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+        shell: pwsh
+        id: prep
+      - name: Upload to release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: ${{ steps.prep.outputs.ZIP }}
