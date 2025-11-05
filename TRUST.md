@@ -1,4 +1,4 @@
 # Trust & Safety Notes
 - Read-only by design (no pushes, no telemetry).
-- Mirrors are Git-native (*.git), verifiable via git fsck.
-- Restores do not require this product (see RESTORE.md in each backup).
+- Backups are Git-native (\*.git\) mirrors; verify with \git fsck\.
+- Restores do not require this product; see \RESTORE.md\ stamped in each backup.
