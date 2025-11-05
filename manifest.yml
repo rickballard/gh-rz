@@ -1,2 +1,3 @@
-name: gh-rz
-shortDescription: RepoZipper Cloud wrapper (read-only GitHub backup: mirror + git bundle)
+name: rz
+shortDescription: Read-only GitHub backup to local bundles (disaster-recovery, no telemetry)
+version: 0.1.0
