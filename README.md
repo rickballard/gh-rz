@@ -8,4 +8,4 @@ A GitHub CLI extension that creates read-only, Git-native, verifiable backups of
 
 ```pwsh
 gh extension install rickballard/gh-rz
-gh rz -User $(gh api user --jq .login) -OutDir "$HOME\Desktop\GitHubRepoBackups"
+gh rz -User $(gh api user --jq .login) -OutDir "$HOME\Desktop\GitHubRepoBackups"rnrn
