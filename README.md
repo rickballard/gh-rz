@@ -9,3 +9,4 @@ A GitHub CLI extension that creates read-only, Git-native, verifiable backups of
 ```pwsh
 gh extension install rickballard/gh-rz
 gh rz -User $(gh api user --jq .login) -OutDir "$HOME\Desktop\GitHubRepoBackups"rnrn
+<!-- docs: touch after MegaWave v0.2.6 -->
