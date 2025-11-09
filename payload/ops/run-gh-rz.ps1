@@ -1,31 +1,13 @@
-param(
-  [string]$OutDir = (Join-Path $HOME "Desktop/CoSuiteBackup"),
-  [string]$User   = $(gh api user --jq ".login"),
-  [ValidateSet('DryRun','Real')][string]$Mode = 'Real',
-  [string[]]$Skip = @()
-)
+param([ValidateSet('Prompt','Default')][string]$Mode='Prompt')
 $ErrorActionPreference='Stop'
-$ReceiptRoot = Join-Path $OutDir '_RECEIPTS'
-New-Item -ItemType Directory -Force -Path $OutDir,$ReceiptRoot | Out-Null
-$Log = Join-Path $ReceiptRoot ("run_{0}.log" -f (Get-Date).ToString('yyyyMMdd_HHmmss'))
-
-function Note($s){ $s | Tee-Object -FilePath $Log -Append }
-
-Note ("Runner start {0}" -f (Get-Date))
-Note ("User: {0}" -f $User)
-Note ("OutDir: {0}" -f $OutDir)
-if($Skip.Count){ Note ("Skip: {0}" -f ($Skip -join ', ')) }
-Note ("Mode: {0}" -f $Mode)
-
-$wrapper = Resolve-Path (Join-Path $PSScriptRoot '..\gh-rz.ps1')
-
-if ($Mode -eq 'DryRun') {
-  $list = & pwsh -NoLogo -NoProfile -File $wrapper -DryRun -User $User -Skip $Skip
-  $list | Sort-Object | Tee-Object -FilePath (Join-Path $ReceiptRoot 'dryrun_list.txt')
-  Note ("DryRun count: {0}" -f ($list.Count))
-  exit 0
-}
-
-& pwsh -NoLogo -NoProfile -File $wrapper -User $User -OutDir $OutDir -Skip $Skip
-Note ("ExitCode: {0}" -f $LASTEXITCODE)
-exit $LASTEXITCODE
+function Say($m){ Write-Host "[gh-rz] $m" }
+if(-not (Get-Command gh -ErrorAction SilentlyContinue)){ throw "GitHub CLI 'gh' is not installed." }
+if(-not (gh extension list | Select-String -Quiet 'rickballard/gh-rz')){ Say "Installing gh extension rickballard/gh-rz…"; gh extension install rickballard/gh-rz | Out-Null }
+$user = gh api user --jq .login
+$defaultOut = Join-Path $HOME "Desktop/GitHubRepoBackups"
+$outDir = $defaultOut
+if($Mode -eq 'Prompt'){ $ans = Read-Host "Output folder [$defaultOut]"; if($ans){ $outDir = $ans } }
+New-Item -ItemType Directory -Force -Path $outDir | Out-Null
+Say "Running backup for @$user to $outDir"
+gh rz -User $user -OutDir $outDir
+Say "Done."
