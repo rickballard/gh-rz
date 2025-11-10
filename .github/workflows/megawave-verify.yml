@@ -1,0 +1,43 @@
+name: megawave-verify
+on:
+  workflow_dispatch:
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        tag: [v0.2.1]
+        shard: [1,2,3]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify surfaces (README, release SHA, payload heads)
+        shell: pwsh
+        env:
+          GH_REPO: rickballard/gh-rz
+          GH_TAG:  ${{ matrix.tag }}
+        run: |
+          $ErrorActionPreference='Stop'
+          $Repo = $env:GH_REPO
+          $Tag  = $env:GH_TAG
+          $ua   = @{Authorization="Bearer $env:GITHUB_TOKEN"; "User-Agent"="megawave-ci"}
+
+          # README markers
+          $rdj = Invoke-RestMethod "https://api.github.com/repos/$Repo/readme" -Headers $ua
+          $txt = (Invoke-WebRequest $rdj.download_url).Content
+          if($txt -notmatch 'Download RepoZipper Cloud' -or $txt -notmatch 'Quickstart \(2 commands\)'){
+            throw "README markers missing"
+          }
+
+          # Release body SHA + sidecar
+          $rel = Invoke-RestMethod "https://api.github.com/repos/$Repo/releases/tags/$Tag" -Headers $ua
+          if(-not ($rel.body -match 'SHA-256')){ throw "Release body missing SHA-256" }
+          if(-not ($rel.assets.name -match '\.sha256\.txt')){ throw "No .sha256.txt asset" }
+
+          # Payload heads present
+          foreach($p in 'payload/ui/logo.svg','payload/ui/index.html',
+                       'payload/ops/Start-RepoZipper.cmd','payload/ops/start-repozipper.sh','payload/ops/run-gh-rz.ps1'){
+            $r = Invoke-RestMethod "https://api.github.com/repos/$Repo/contents/$p" -Headers $ua -ErrorAction SilentlyContinue
+            if(-not $r.sha){ throw "Missing $p" }
+          }
+
+          Write-Host "All checks OK."
