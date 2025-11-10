@@ -1,4 +1,4 @@
-param([ValidateSet('Prompt','Default')][string]$Mode='Prompt')
+param([ValidateSet("Prompt","Default")][string]$Mode="Prompt")
 $ErrorActionPreference='Stop'
 function Say($m){ Write-Host "[gh-rz] $m" }
 if(-not (Get-Command gh -ErrorAction SilentlyContinue)){ throw "GitHub CLI 'gh' is not installed." }
